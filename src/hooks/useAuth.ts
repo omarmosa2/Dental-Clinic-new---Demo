@@ -27,8 +27,8 @@ export function useAuth() {
     try {
       console.log('🔐 Checking auth status...')
 
-      // Load settings directly from API instead of store
-      const currentSettings = await window.electronAPI.settings.get()
+      // Load settings from database API
+      const currentSettings = await window.electronAPI.database.getClinicSettings()
       console.log('🔐 Current settings:', currentSettings)
 
       const passwordEnabled = currentSettings?.password_enabled === 1
@@ -84,7 +84,7 @@ export function useAuth() {
       console.log('🔐 Attempting login...')
 
       // Get current settings directly from API
-      const currentSettings = await window.electronAPI.settings.get()
+      const currentSettings = await window.electronAPI.database.getClinicSettings()
 
       if (!currentSettings?.app_password) {
         console.log('❌ No password set in settings')
@@ -139,7 +139,7 @@ export function useAuth() {
 
       console.log('🔐 Updating settings with hashed password...')
       const updatedSettings = await withTimeout(
-        window.electronAPI.settings.update({
+        window.electronAPI.database.updateClinicSettings({
           app_password: hashedPassword,
           password_enabled: 1
         }),
@@ -170,7 +170,7 @@ export function useAuth() {
     try {
       console.log('🔐 Removing password...')
       const updatedSettings = await withTimeout(
-        window.electronAPI.settings.update({
+        window.electronAPI.database.updateClinicSettings({
           app_password: null,
           password_enabled: 0
         }),
@@ -203,7 +203,7 @@ export function useAuth() {
       console.log('🔐 Changing password...')
 
       // Get current settings directly from API
-      const currentSettings = await window.electronAPI.settings.get()
+      const currentSettings = await window.electronAPI.database.getClinicSettings()
 
       if (!currentSettings?.app_password) {
         console.log('❌ No existing password found')
@@ -222,7 +222,7 @@ export function useAuth() {
       console.log('🔐 Updating with new password...')
 
       const updatedSettings = await withTimeout(
-        window.electronAPI.settings.update({
+        window.electronAPI.database.updateClinicSettings({
           app_password: hashedNew
         }),
         10000 // 10 second timeout

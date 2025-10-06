@@ -130,31 +130,259 @@ export interface DemoDataStructure {
 }
 
 // Default demo data
-export const getDefaultDemoData = (): DemoDataStructure => ({
-  patients: [],
-  appointments: [],
-  payments: [],
-  treatments: [],
-  inventory: [],
-  labs: [],
-  labOrders: [],
-  medications: [],
-  prescriptions: [],
-  settings: {
-    clinic_name: 'عيادة الأسنان التجريبية',
-    clinic_address: 'العنوان التجريبي',
-    clinic_phone: '0123456789',
-    clinic_email: 'demo@dentalclinic.com',
-    currency: 'USD',
-    language: 'ar',
-    theme: 'light',
-    backup_frequency: 'daily'
-  },
-  dentalTreatmentImages: [],
-  toothTreatments: [],
-  toothTreatmentImages: [],
-  clinicExpenses: []
-})
+export const getDefaultDemoData = (): DemoDataStructure => {
+  const now = new Date()
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+  const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+  return {
+    patients: [
+      {
+        id: 'demo-patient-1',
+        name: 'أحمد محمد علي',
+        phone: '01234567890',
+        email: 'ahmed@example.com',
+        age: 35,
+        gender: 'male',
+        address: 'شارع الملك فهد، الرياض',
+        medical_history: 'لا توجد حساسية',
+        notes: 'مريض منتظم',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-patient-2',
+        name: 'فاطمة أحمد السعيد',
+        phone: '01234567891',
+        email: 'fatima@example.com',
+        age: 28,
+        gender: 'female',
+        address: 'شارع العليا، جدة',
+        medical_history: 'حساسية من البنسلين',
+        notes: 'تحتاج متابعة دورية',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-patient-3',
+        name: 'محمد عبدالله القحطاني',
+        phone: '01234567892',
+        email: 'mohammed@example.com',
+        age: 42,
+        gender: 'male',
+        address: 'شارع التحلية، الدمام',
+        medical_history: 'سكري',
+        notes: 'يحتاج عناية خاصة',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    appointments: [
+      {
+        id: 'demo-appointment-1',
+        patient_id: 'demo-patient-1',
+        patient_name: 'أحمد محمد علي',
+        date: tomorrow.toISOString(),
+        time: '10:00',
+        duration: 60,
+        type: 'فحص دوري',
+        status: 'scheduled',
+        notes: 'فحص شامل للأسنان',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-appointment-2',
+        patient_id: 'demo-patient-2',
+        patient_name: 'فاطمة أحمد السعيد',
+        date: nextWeek.toISOString(),
+        time: '14:00',
+        duration: 90,
+        type: 'علاج',
+        status: 'scheduled',
+        notes: 'حشو الأسنان الأمامية',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    payments: [
+      {
+        id: 'demo-payment-1',
+        patient_id: 'demo-patient-1',
+        patient_name: 'أحمد محمد علي',
+        amount: 500,
+        currency: 'SAR',
+        payment_method: 'cash',
+        description: 'فحص دوري',
+        date: now.toISOString(),
+        status: 'completed',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-payment-2',
+        patient_id: 'demo-patient-2',
+        patient_name: 'فاطمة أحمد السعيد',
+        amount: 1200,
+        currency: 'SAR',
+        payment_method: 'card',
+        description: 'علاج الأسنان',
+        date: now.toISOString(),
+        status: 'completed',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    treatments: [
+      {
+        id: 'demo-treatment-1',
+        patient_id: 'demo-patient-1',
+        patient_name: 'أحمد محمد علي',
+        treatment_type: 'فحص',
+        description: 'فحص شامل للأسنان',
+        cost: 500,
+        status: 'completed',
+        date: now.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-treatment-2',
+        patient_id: 'demo-patient-2',
+        patient_name: 'فاطمة أحمد السعيد',
+        treatment_type: 'حشو',
+        description: 'حشو الأسنان الأمامية',
+        cost: 1200,
+        status: 'in_progress',
+        date: now.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    inventory: [
+      {
+        id: 'demo-inventory-1',
+        name: 'حشوة بيضاء',
+        category: 'مواد حشو',
+        quantity: 50,
+        unit: 'قطعة',
+        cost_per_unit: 25,
+        supplier: 'شركة المواد الطبية',
+        expiry_date: '2025-12-31',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-inventory-2',
+        name: 'مخدر موضعي',
+        category: 'أدوية',
+        quantity: 20,
+        unit: 'زجاجة',
+        cost_per_unit: 15,
+        supplier: 'شركة الأدوية',
+        expiry_date: '2024-12-31',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    labs: [
+      {
+        id: 'demo-lab-1',
+        name: 'مختبر الأسنان المتقدم',
+        address: 'شارع الملك عبدالعزيز، الرياض',
+        phone: '0112345678',
+        email: 'info@dental-lab.com',
+        contact_person: 'د. سعد العتيبي',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    labOrders: [
+      {
+        id: 'demo-lab-order-1',
+        patient_id: 'demo-patient-1',
+        patient_name: 'أحمد محمد علي',
+        lab_id: 'demo-lab-1',
+        lab_name: 'مختبر الأسنان المتقدم',
+        order_type: 'تاج',
+        description: 'تاج خزفي للأسنان الأمامية',
+        cost: 800,
+        status: 'pending',
+        order_date: now.toISOString(),
+        expected_delivery: nextWeek.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    medications: [
+      {
+        id: 'demo-medication-1',
+        name: 'أموكسيسيلين',
+        dosage: '500mg',
+        frequency: '3 مرات يومياً',
+        duration: '7 أيام',
+        instructions: 'يؤخذ مع الطعام',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      },
+      {
+        id: 'demo-medication-2',
+        name: 'ايبوبروفين',
+        dosage: '400mg',
+        frequency: 'عند الحاجة',
+        duration: '3 أيام',
+        instructions: 'يؤخذ عند الشعور بالألم',
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    prescriptions: [
+      {
+        id: 'demo-prescription-1',
+        patient_id: 'demo-patient-1',
+        patient_name: 'أحمد محمد علي',
+        medication_id: 'demo-medication-1',
+        medication_name: 'أموكسيسيلين',
+        dosage: '500mg',
+        frequency: '3 مرات يومياً',
+        duration: '7 أيام',
+        instructions: 'يؤخذ مع الطعام',
+        prescribed_date: now.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ],
+    settings: {
+      clinic_name: 'عيادة الأسنان التجريبية',
+      clinic_address: 'شارع الملك فهد، الرياض',
+      clinic_phone: '0112345678',
+      clinic_email: 'info@dentalclinic-demo.com',
+      currency: 'SAR',
+      language: 'ar',
+      theme: 'dark',
+      backup_frequency: 'daily',
+      password_enabled: 0,
+      app_password: '',
+      created_at: now.toISOString(),
+      updated_at: now.toISOString()
+    },
+    dentalTreatmentImages: [],
+    toothTreatments: [],
+    toothTreatmentImages: [],
+    clinicExpenses: [
+      {
+        id: 'demo-expense-1',
+        category: 'مواد طبية',
+        description: 'شراء مواد حشو',
+        amount: 500,
+        currency: 'SAR',
+        date: now.toISOString(),
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }
+    ]
+  }
+}
 
 // Demo mode initialization
 export const initializeDemoMode = (): void => {
