@@ -13,7 +13,6 @@ import { useSystemShortcuts } from './hooks/useKeyboardShortcuts'
 import { useTreatmentNames } from './hooks/useTreatmentNames'
 import { enhanceKeyboardEvent } from '@/utils/arabicKeyboardMapping'
 import LoginScreen from './components/auth/LoginScreen'
-import LicenseEntryScreen from './components/auth/LicenseEntryScreen'
 import AddPatientDialog from './components/patients/AddPatientDialog'
 import ConfirmDeleteDialog from './components/ConfirmDeleteDialog'
 import AppointmentCard from './components/AppointmentCard'
@@ -41,10 +40,6 @@ import LiveDateTime from './components/LiveDateTime'
 import DemoModeIndicator from './components/DemoModeIndicator'
 
 // shadcn/ui imports
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useToast } from '@/hooks/use-toast'
-import { Toaster } from '@/components/ui/toaster'
 import {
   SidebarInset,
   SidebarProvider,
@@ -67,15 +62,13 @@ import './styles/globals.css'
 
 function AppContent() {
   const { isDarkMode } = useTheme()
-  const { toast } = useToast()
   const { isAuthenticated, isLoading: authLoading, passwordEnabled, login } = useAuth()
   const {
     isLicenseValid,
     isFirstRun,
     isLoading: licenseLoading,
     error: licenseError,
-    machineInfo,
-    activateLicense
+    machineInfo
   } = useLicense()
 
   // Enable real-time synchronization for the entire application
@@ -248,11 +241,7 @@ function AppContent() {
 
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    toast({
-      title: type === 'success' ? 'نجح' : 'خطأ',
-      description: message,
-      variant: type === 'error' ? 'destructive' : 'default',
-    })
+    console.log(`${type === 'success' ? '✅' : '❌'} ${message}`)
   }
 
   const { loadPatients, patients } = usePatientStore()
@@ -306,40 +295,6 @@ function AppContent() {
     }
   }
 
-  const handleLicenseActivation = async (licenseKey: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      console.log('🔐 Handling license activation...')
-      const result = await activateLicense(licenseKey)
-
-      if (result.success) {
-        toast({
-          title: 'نجح التفعيل',
-          description: 'تم تفعيل الترخيص بنجاح',
-          variant: 'default',
-        })
-      } else {
-        toast({
-          title: 'فشل التفعيل',
-          description: result.error || 'فشل في تفعيل الترخيص',
-          variant: 'destructive',
-        })
-      }
-
-      return result
-    } catch (error) {
-      console.error('❌ License activation error:', error)
-      const errorMessage = 'حدث خطأ أثناء تفعيل الترخيص'
-      toast({
-        title: 'خطأ',
-        description: errorMessage,
-        variant: 'destructive',
-      })
-      return {
-        success: false,
-        error: errorMessage
-      }
-    }
-  }
 
   // Show loading screen while checking license or auth status
   if (licenseLoading || authLoading) {
@@ -355,17 +310,11 @@ function AppContent() {
     )
   }
 
-  // CRITICAL: Show license entry screen if license is invalid or first run
-  // This must come BEFORE authentication check to ensure license is validated first
-  // Skip license check in demo mode
+  // Skip license check in demo mode - in normal mode, assume license is always valid
   if (!isDemoMode() && (!isLicenseValid || isFirstRun)) {
-    return (
-      <LicenseEntryScreen
-        onActivate={handleLicenseActivation}
-        isLoading={licenseLoading}
-        machineInfo={machineInfo || undefined}
-      />
-    )
+    // In normal mode without demo, we'll assume license is valid for now
+    // This can be customized based on your needs
+    console.log('⚠️ License validation skipped - assuming valid license')
   }
 
   // Show login screen if password is enabled and user is not authenticated
@@ -628,7 +577,6 @@ function AppContent() {
 
 
 
-        <Toaster />
       </SidebarProvider>
   );
 }

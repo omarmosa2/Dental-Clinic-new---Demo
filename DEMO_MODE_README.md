@@ -41,7 +41,7 @@ VITE_DEMO_MODE=true npm run dev
 
 ### ❌ What's Disabled in Demo Mode
 - SQLite database connection
-- License validation system
+- License validation system (completely removed from the app)
 - File system operations (images are mocked)
 - Persistent data storage (data is lost on page refresh)
 
@@ -54,10 +54,10 @@ VITE_DEMO_MODE=true npm run dev
 - No data persistence between sessions
 
 ### License System
-- License validation is completely bypassed
-- No license entry screen is shown
+- License validation system has been completely removed from the application
+- No license entry screen exists
 - Application starts directly to the main interface
-- Mock license information is provided
+- Mock license information is provided in demo mode only
 
 ### Database Operations
 - All database operations are mocked

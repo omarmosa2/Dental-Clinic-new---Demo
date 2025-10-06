@@ -22,11 +22,6 @@ interface LicenseStatus {
   licenseData?: LicenseData
 }
 
-interface LicenseActivationResult {
-  success: boolean
-  error?: string
-  licenseData?: LicenseData
-}
 
 interface LicenseState {
   isLicenseValid: boolean
@@ -117,46 +112,6 @@ export function useLicense() {
     }
   }, [])
 
-  /**
-   * Activate license with provided key
-   */
-  const activateLicense = useCallback(async (licenseKey: string): Promise<LicenseActivationResult> => {
-    try {
-      console.log('🔐 Activating license...')
-      
-      // In demo mode, always succeed
-      if (isDemoMode()) {
-        console.log('🎭 Demo Mode: License activation always succeeds')
-        return {
-          success: true
-        }
-      }
-      
-      if (!window.electronAPI?.license?.activate) {
-        throw new Error('License API not available')
-      }
-
-      if (!licenseKey || typeof licenseKey !== 'string') {
-        throw new Error('Invalid license key provided')
-      }
-
-      const result = await window.electronAPI.license.activate(licenseKey.trim())
-      console.log('🔐 License activation result:', result.success)
-      
-      if (result.success) {
-        // Refresh license status after successful activation
-        await refreshLicenseStatus()
-      }
-      
-      return result
-    } catch (error) {
-      console.error('❌ Error activating license:', error)
-      return {
-        success: false,
-        error: 'Failed to activate license'
-      }
-    }
-  }, [])
 
   /**
    * Get detailed license information
@@ -305,7 +260,6 @@ export function useLicense() {
     machineInfo: licenseState.machineInfo,
 
     // Actions
-    activateLicense,
     refreshLicenseStatus,
     clearLicenseData,
     getLicenseInfo,
