@@ -9,14 +9,16 @@ import { initializeMockIpcHandlers } from './services/mockIpcHandlers'
 // ✅ معالج الأخطاء الشامل لـ React
 console.log('🚀 Starting React application...')
 
-// Initialize Demo Mode if enabled
+// Initialize Mock IPC Handlers for both demo and normal modes
+// This ensures the app works without Electron in browser mode
+console.log('🎭 Initializing mock services for browser compatibility...')
+initializeDemoMode()
+initializeMockIpcHandlers()
+console.log('✅ Mock services initialized successfully')
+
+// Run demo mode tests if in demo mode
 if (isDemoMode()) {
-  console.log('🎭 Demo Mode detected - initializing mock services...')
-  initializeDemoMode()
-  initializeMockIpcHandlers()
-  console.log('✅ Demo Mode initialized successfully')
-  
-  // Run demo mode tests
+  console.log('🎭 Demo Mode detected - running tests...')
   import('./test/demoModeTest').then(({ runAllDemoModeTests }) => {
     runAllDemoModeTests()
   })

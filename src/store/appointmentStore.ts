@@ -77,7 +77,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       loadAppointments: async () => {
         set({ isLoading: true, error: null })
         try {
-          const appointments = await window.electronAPI.appointments.getAll()
+          const appointments = await window.electronAPI.database.getAllAppointments()
           console.log('🏪 Store: Loaded appointments:', appointments.length)
           if (appointments.length > 0) {
             console.log('🏪 Store: First appointment sample:', appointments[0])
@@ -114,7 +114,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       createAppointment: async (appointmentData) => {
         set({ isLoading: true, error: null })
         try {
-          const newAppointment = await window.electronAPI.appointments.create(appointmentData)
+          const newAppointment = await window.electronAPI.database.createAppointment(appointmentData)
           const { appointments } = get()
           const updatedAppointments = [...appointments, newAppointment]
 
@@ -163,7 +163,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
             console.warn('Could not delete old appointment alerts:', error)
           }
 
-          const updatedAppointment = await window.electronAPI.appointments.update(id, appointmentData)
+          const updatedAppointment = await window.electronAPI.database.updateAppointment(id, appointmentData)
           console.log('🏪 Store: Received updated appointment:', updatedAppointment)
 
           const { appointments, selectedAppointment } = get()
@@ -217,7 +217,7 @@ export const useAppointmentStore = create<AppointmentStore>()(
       deleteAppointment: async (id) => {
         set({ isLoading: true, error: null })
         try {
-          const success = await window.electronAPI.appointments.delete(id)
+          const success = await window.electronAPI.database.deleteAppointment(id)
 
           if (success) {
             const { appointments, selectedAppointment } = get()

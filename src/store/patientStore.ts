@@ -57,7 +57,7 @@ export const usePatientStore = create<PatientStore>()(
       loadPatients: async () => {
         set({ isLoading: true, error: null })
         try {
-          const patients = await window.electronAPI?.patients?.getAll() || []
+          const patients = await window.electronAPI?.database?.getAllPatients() || []
           set({
             patients,
             filteredPatients: patients,
@@ -75,7 +75,7 @@ export const usePatientStore = create<PatientStore>()(
       createPatient: async (patientData) => {
         set({ isLoading: true, error: null })
         try {
-          const newPatient = await window.electronAPI.patients.create(patientData)
+          const newPatient = await window.electronAPI.database.createPatient(patientData)
           const { patients } = get()
           const updatedPatients = [...patients, newPatient]
 
@@ -114,7 +114,7 @@ export const usePatientStore = create<PatientStore>()(
       updatePatient: async (id, patientData) => {
         set({ isLoading: true, error: null })
         try {
-          const updatedPatient = await window.electronAPI.patients.update(id, patientData)
+          const updatedPatient = await window.electronAPI.database.updatePatient(id, patientData)
           const { patients, selectedPatient } = get()
 
           const updatedPatients = patients.map(p =>
@@ -161,7 +161,7 @@ export const usePatientStore = create<PatientStore>()(
           const { patients, selectedPatient } = get()
           const patientToDelete = patients.find(p => p.id === id)
 
-          const success = await window.electronAPI.patients.delete(id)
+          const success = await window.electronAPI.database.deletePatient(id)
 
           if (success) {
             const updatedPatients = patients.filter(p => p.id !== id)
@@ -226,7 +226,7 @@ export const usePatientStore = create<PatientStore>()(
             })
           } else {
             // Search using the database search function
-            const searchResults = await window.electronAPI.patients.search(query)
+            const searchResults = await window.electronAPI.database.searchPatients(query)
             set({
               filteredPatients: searchResults,
               searchQuery: query,
