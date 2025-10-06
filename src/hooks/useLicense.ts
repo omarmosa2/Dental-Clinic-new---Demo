@@ -49,29 +49,17 @@ export function useLicense() {
     try {
       console.log('🔐 Checking license status...')
       
-      // In demo mode, always return valid license
-      if (isDemoMode()) {
-        console.log('🎭 Demo Mode: Returning valid license status')
-        return {
-          isValid: true,
-          isFirstRun: false
-        }
+      // Always return valid license - license validation is completely disabled
+      console.log('🎭 License validation disabled - returning valid license status')
+      return {
+        isValid: true,
+        isFirstRun: false
       }
-      
-      if (!window.electronAPI?.license?.checkStatus) {
-        throw new Error('License API not available')
-      }
-
-      const result = await window.electronAPI.license.checkStatus()
-      console.log('🔐 License status result:', result)
-      
-      return result
     } catch (error) {
       console.error('❌ Error checking license status:', error)
       return {
-        isValid: false,
-        error: 'Failed to check license status',
-        isFirstRun: true
+        isValid: true, // Always return valid even on error
+        isFirstRun: false
       }
     }
   }, [])
@@ -83,31 +71,19 @@ export function useLicense() {
     try {
       console.log('🔐 Getting machine info...')
       
-      // In demo mode, return mock machine info
-      if (isDemoMode()) {
-        console.log('🎭 Demo Mode: Returning mock machine info')
-        return {
-          hwid: 'DEMO-HWID-123456789',
-          platform: 'demo',
-          arch: 'x64'
-        }
+      // Return mock machine info since license validation is disabled
+      console.log('🎭 License validation disabled - returning mock machine info')
+      return {
+        hwid: 'MOCK-HWID-123456789',
+        platform: 'desktop',
+        arch: 'x64'
       }
-      
-      if (!window.electronAPI?.license?.getMachineInfo) {
-        throw new Error('License API not available')
-      }
-
-      const result = await window.electronAPI.license.getMachineInfo()
-      console.log('🔐 Machine info result:', result)
-      
-      return result
     } catch (error) {
       console.error('❌ Error getting machine info:', error)
       return {
-        hwid: 'error',
-        platform: 'unknown',
-        arch: 'unknown',
-        error: 'Failed to get machine info'
+        hwid: 'MOCK-HWID-123456789',
+        platform: 'desktop',
+        arch: 'x64'
       }
     }
   }, [])
@@ -120,28 +96,22 @@ export function useLicense() {
     try {
       console.log('🔐 Getting license info...')
       
-      // In demo mode, return mock license info
-      if (isDemoMode()) {
-        console.log('🎭 Demo Mode: Returning mock license info')
-        return {
-          license: 'DEMO-LICENSE-KEY',
-          hwid: 'DEMO-HWID-123456789',
-          activated: true,
-          timestamp: Date.now()
-        }
+      // Return mock license info since license validation is disabled
+      console.log('🎭 License validation disabled - returning mock license info')
+      return {
+        license: 'MOCK-LICENSE-KEY',
+        hwid: 'MOCK-HWID-123456789',
+        activated: true,
+        timestamp: Date.now()
       }
-      
-      if (!window.electronAPI?.license?.getLicenseInfo) {
-        throw new Error('License API not available')
-      }
-
-      const result = await window.electronAPI.license.getLicenseInfo()
-      console.log('🔐 License info result:', result)
-      
-      return result
     } catch (error) {
       console.error('❌ Error getting license info:', error)
-      return null
+      return {
+        license: 'MOCK-LICENSE-KEY',
+        hwid: 'MOCK-HWID-123456789',
+        activated: true,
+        timestamp: Date.now()
+      }
     }
   }, [])
 

@@ -7,8 +7,6 @@ import { CurrencyProvider } from './contexts/CurrencyContext'
 import { useRealTimeSync } from './hooks/useRealTimeSync'
 import { useRealTimeTableSync } from './hooks/useRealTimeTableSync'
 import { useAuth } from './hooks/useAuth'
-import { useLicense } from './hooks/useLicense'
-import { isDemoMode } from './config/demoMode'
 import { useSystemShortcuts } from './hooks/useKeyboardShortcuts'
 import { useTreatmentNames } from './hooks/useTreatmentNames'
 import { enhanceKeyboardEvent } from '@/utils/arabicKeyboardMapping'
@@ -63,13 +61,16 @@ import './styles/globals.css'
 function AppContent() {
   const { isDarkMode } = useTheme()
   const { isAuthenticated, isLoading: authLoading, passwordEnabled, login } = useAuth()
-  const {
-    isLicenseValid,
-    isFirstRun,
-    isLoading: licenseLoading,
-    error: licenseError,
-    machineInfo
-  } = useLicense()
+  // License validation is completely disabled
+  const isLicenseValid = true
+  const isFirstRun = false
+  const licenseLoading = false
+  const licenseError = null
+  const machineInfo = {
+    hwid: 'MOCK-HWID-123456789',
+    platform: 'desktop',
+    arch: 'x64'
+  }
 
   // Enable real-time synchronization for the entire application
   useRealTimeSync()
@@ -296,29 +297,24 @@ function AppContent() {
   }
 
 
-  // Show loading screen while checking license or auth status
-  if (licenseLoading || authLoading) {
+  // Show loading screen while checking auth status
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-muted-foreground">
-            {licenseLoading ? 'جاري التحقق من الترخيص...' : 'جاري التحميل...'}
+            جاري التحميل...
           </p>
         </div>
       </div>
     )
   }
 
-  // Skip license check in demo mode - in normal mode, assume license is always valid
-  if (!isDemoMode() && (!isLicenseValid || isFirstRun)) {
-    // In normal mode without demo, we'll assume license is valid for now
-    // This can be customized based on your needs
-    console.log('⚠️ License validation skipped - assuming valid license')
-  }
+  // License validation is completely disabled - app works without license
+  console.log('⚠️ License validation completely disabled - app works without license')
 
   // Show login screen if password is enabled and user is not authenticated
-  // This only shows AFTER license is validated
   if (passwordEnabled && !isAuthenticated) {
     return <LoginScreen onLogin={handleLogin} isLoading={loginLoading} />
   }
