@@ -597,6 +597,24 @@ if (typeof window !== 'undefined') {
       fullStructure: (window as any).electronAPI
     })
   }
+  
+  (window as any).resetDemoData = () => {
+    console.log('🔄 Resetting demo data...')
+    try {
+      // Clear existing demo data
+      const keys = Object.keys(localStorage)
+      keys.forEach(key => {
+        if (key.startsWith('dental_clinic_demo_')) {
+          localStorage.removeItem(key)
+        }
+      })
+      
+      // Force reload the page to reinitialize with new data
+      window.location.reload()
+    } catch (error) {
+      console.error('❌ Failed to reset demo data:', error)
+    }
+  }
 }
 
 /**
