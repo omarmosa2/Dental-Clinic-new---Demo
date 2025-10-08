@@ -14,6 +14,19 @@ console.log('🚀 Starting React application...')
 console.log('🎭 Initializing mock services for browser compatibility...')
 initializeDemoMode()
 initializeMockIpcHandlers()
+
+// Also try to initialize after a short delay to ensure it's available when stores load
+setTimeout(() => {
+  console.log('🎭 Re-initializing mock services after delay...')
+  initializeMockIpcHandlers()
+}, 100)
+
+// And once more after React has loaded
+setTimeout(() => {
+  console.log('🎭 Final mock services initialization...')
+  initializeMockIpcHandlers()
+}, 500)
+
 console.log('✅ Mock services initialized successfully')
 
 // Run demo mode tests if in demo mode

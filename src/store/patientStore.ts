@@ -57,7 +57,19 @@ export const usePatientStore = create<PatientStore>()(
       loadPatients: async () => {
         set({ isLoading: true, error: null })
         try {
-          const patients = await window.electronAPI?.database?.getAllPatients() || []
+          // Check if electronAPI is available and has the required function
+          if (!window.electronAPI?.database?.getAllPatients) {
+            console.warn('⚠️ electronAPI.database.getAllPatients not available, using fallback')
+            // Fallback to empty array for now
+            set({
+              patients: [],
+              filteredPatients: [],
+              isLoading: false
+            })
+            return
+          }
+          
+          const patients = await window.electronAPI.database.getAllPatients()
           set({
             patients,
             filteredPatients: patients,

@@ -525,13 +525,107 @@ export const mockIpcHandlers = {
   }
 }
 
+// Export a global function for manual initialization
+if (typeof window !== 'undefined') {
+  (window as any).initializeMockElectronAPI = () => {
+    console.log('🔧 Manual mock initialization called')
+    initializeMockIpcHandlers()
+  }
+  
+  (window as any).forceMockElectronAPI = () => {
+    console.log('🔧 Force replacing electronAPI with mock version')
+    try {
+      // Create a completely new electronAPI object
+      const newElectronAPI = {
+        ...(window as any).electronAPI, // Preserve existing properties
+        database: {
+          // Patients
+          getAllPatients: () => mockIpcHandlers['db:patients:getAll'](),
+          createPatient: (patient: any) => mockIpcHandlers['db:patients:create'](patient),
+          updatePatient: (id: string, patient: any) => mockIpcHandlers['db:patients:update'](id, patient),
+          deletePatient: (id: string) => mockIpcHandlers['db:patients:delete'](id),
+          searchPatients: (query: string) => mockIpcHandlers['db:patients:search'](query),
+          
+          // Appointments
+          getAllAppointments: () => mockIpcHandlers['db:appointments:getAll'](),
+          createAppointment: (appointment: any) => mockIpcHandlers['db:appointments:create'](appointment),
+          updateAppointment: (id: string, appointment: any) => mockIpcHandlers['db:appointments:update'](id, appointment),
+          deleteAppointment: (id: string) => mockIpcHandlers['db:appointments:delete'](id),
+          searchAppointments: (query: string) => mockIpcHandlers['db:appointments:search'](query),
+          checkAppointmentConflict: (startTime: string, endTime: string, excludeId?: string) => 
+            mockIpcHandlers['db:appointments:checkConflict'](startTime, endTime, excludeId),
+          
+          // Payments
+          getAllPayments: () => mockIpcHandlers['db:payments:getAll'](),
+          getPaymentsByPatient: (patientId: string) => mockIpcHandlers['db:payments:getByPatient'](patientId),
+          createPayment: (payment: any) => mockIpcHandlers['db:payments:create'](payment),
+          updatePayment: (id: string, payment: any) => mockIpcHandlers['db:payments:update'](id, payment),
+          deletePayment: (id: string) => mockIpcHandlers['db:payments:delete'](id),
+          searchPayments: (query: string) => mockIpcHandlers['db:payments:search'](query),
+          
+          // Additional methods that might be needed
+          getClinicSettings: () => mockIpcHandlers['settings:get'](),
+          updateClinicSettings: (settings: any) => mockIpcHandlers['settings:update'](settings)
+        }
+      }
+      
+      // Try to replace the entire electronAPI
+      try {
+        (window as any).electronAPI = newElectronAPI
+        console.log('✅ Force replaced electronAPI with mock version')
+      } catch (replaceError) {
+        console.log('⚠️ Direct replacement failed, trying Object.defineProperty')
+        Object.defineProperty(window, 'electronAPI', {
+          value: newElectronAPI,
+          writable: true,
+          configurable: true
+        })
+        console.log('✅ Force replaced electronAPI using Object.defineProperty')
+      }
+    } catch (error) {
+      console.error('❌ Failed to force replace electronAPI:', error)
+    }
+  }
+  
+  (window as any).checkElectronAPI = () => {
+    console.log('🔍 Current electronAPI status:', {
+      exists: !!(window as any).electronAPI,
+      hasDatabase: !!(window as any).electronAPI?.database,
+      getAllPatients: typeof (window as any).electronAPI?.database?.getAllPatients,
+      getAllAppointments: typeof (window as any).electronAPI?.database?.getAllAppointments,
+      databaseKeys: Object.keys((window as any).electronAPI?.database || {}),
+      fullStructure: (window as any).electronAPI
+    })
+  }
+}
+
 /**
  * Initialize mock IPC handlers for demo mode
  */
 export const initializeMockIpcHandlers = (): void => {
+  console.log('🎭 initializeMockIpcHandlers called')
   if (typeof window !== 'undefined') {
-    // Create mock electronAPI object
-    (window as any).electronAPI = {
+    console.log('🎭 Window is available, checking existing electronAPI')
+    // Check if electronAPI already exists and is read-only
+    const existingElectronAPI = (window as any).electronAPI
+    console.log('🎭 Existing electronAPI:', existingElectronAPI)
+    console.log('🎭 electronAPI descriptor:', Object.getOwnPropertyDescriptor(window, 'electronAPI'))
+    
+    // Always initialize mock, but check if we need to override
+    const needsOverride = !existingElectronAPI || 
+      !existingElectronAPI.database || 
+      !existingElectronAPI.database.getAllPatients ||
+      !existingElectronAPI.database.getAllAppointments
+    
+    if (!needsOverride) {
+      console.log('🎭 electronAPI already has required functions, skipping mock initialization')
+      return
+    }
+    
+    console.log('🎭 electronAPI needs mock initialization or override')
+
+    // Create mock electronAPI object with database wrapper structure
+    const mockElectronAPI = {
       license: {
         checkStatus: () => mockIpcHandlers['license:checkStatus'](),
         getMachineInfo: () => mockIpcHandlers['license:getMachineInfo'](),
@@ -631,7 +725,11 @@ export const initializeMockIpcHandlers = (): void => {
         getAllClinicExpenses: () => mockIpcHandlers['db:clinicExpenses:getAll'](),
         createClinicExpense: (expense: any) => mockIpcHandlers['db:clinicExpenses:create'](expense),
         updateClinicExpense: (id: string, expense: any) => mockIpcHandlers['db:clinicExpenses:update'](id, expense),
-        deleteClinicExpense: (id: string) => mockIpcHandlers['db:clinicExpenses:delete'](id)
+        deleteClinicExpense: (id: string) => mockIpcHandlers['db:clinicExpenses:delete'](id),
+
+        // Additional methods that might be needed
+        getClinicSettings: () => mockIpcHandlers['settings:get'](),
+        updateClinicSettings: (settings: any) => mockIpcHandlers['settings:update'](settings)
       },
       settings: {
         get: () => mockIpcHandlers['settings:get'](),
@@ -670,5 +768,125 @@ export const initializeMockIpcHandlers = (): void => {
         exportReport: (type: string, filter: any, options: any) => mockIpcHandlers['reports:exportReport'](type, filter, options)
       }
     }
+
+    // Try to assign the mock API, with fallback to defineProperty if needed
+    try {
+      (window as any).electronAPI = mockElectronAPI
+      console.log('✅ Mock electronAPI assigned successfully')
+      console.log('🔍 Mock electronAPI structure:', {
+        hasDatabase: !!(window as any).electronAPI?.database,
+        hasGetAllPatients: !!(window as any).electronAPI?.database?.getAllPatients,
+        hasGetAllAppointments: !!(window as any).electronAPI?.database?.getAllAppointments,
+        databaseKeys: Object.keys((window as any).electronAPI?.database || {})
+      })
+      
+      // Add global debug function
+      (window as any).debugElectronAPI = () => {
+        console.log('🔍 Debug electronAPI:', {
+          exists: !!(window as any).electronAPI,
+          hasDatabase: !!(window as any).electronAPI?.database,
+          getAllPatients: typeof (window as any).electronAPI?.database?.getAllPatients,
+          getAllAppointments: typeof (window as any).electronAPI?.database?.getAllAppointments,
+          databaseKeys: Object.keys((window as any).electronAPI?.database || {}),
+          fullStructure: (window as any).electronAPI
+        })
+      }
+    } catch (error) {
+      console.log('⚠️ Direct assignment failed, using Object.defineProperty')
+      try {
+        Object.defineProperty(window, 'electronAPI', {
+          value: mockElectronAPI,
+          writable: true,
+          configurable: true
+        })
+        console.log('✅ Mock electronAPI defined successfully using Object.defineProperty')
+        console.log('🔍 Mock electronAPI structure after defineProperty:', {
+          hasDatabase: !!(window as any).electronAPI?.database,
+          hasGetAllPatients: !!(window as any).electronAPI?.database?.getAllPatients,
+          hasGetAllAppointments: !!(window as any).electronAPI?.database?.getAllAppointments,
+          databaseKeys: Object.keys((window as any).electronAPI?.database || {})
+        })
+        
+        // Add global debug function
+        (window as any).debugElectronAPI = () => {
+          console.log('🔍 Debug electronAPI:', {
+            exists: !!(window as any).electronAPI,
+            hasDatabase: !!(window as any).electronAPI?.database,
+            getAllPatients: typeof (window as any).electronAPI?.database?.getAllPatients,
+            getAllAppointments: typeof (window as any).electronAPI?.database?.getAllAppointments,
+            databaseKeys: Object.keys((window as any).electronAPI?.database || {}),
+            fullStructure: (window as any).electronAPI
+          })
+        }
+      } catch (defineError) {
+        console.error('❌ Failed to define electronAPI:', defineError)
+      }
+    }
+    
+    // Add a delayed check to ensure the mock is working
+    setTimeout(() => {
+      console.log('🔍 Delayed check - electronAPI status:', {
+        exists: !!(window as any).electronAPI,
+        hasDatabase: !!(window as any).electronAPI?.database,
+        getAllPatients: typeof (window as any).electronAPI?.database?.getAllPatients,
+        getAllAppointments: typeof (window as any).electronAPI?.database?.getAllAppointments
+      })
+      
+      // If the functions are still not available, try to replace the entire electronAPI
+      if (!(window as any).electronAPI?.database?.getAllPatients) {
+        console.log('🔧 Attempting to replace electronAPI with mock version')
+        try {
+          // Create a completely new electronAPI object
+          const newElectronAPI = {
+            ...(window as any).electronAPI, // Preserve existing properties
+            database: {
+              // Patients
+              getAllPatients: () => mockIpcHandlers['db:patients:getAll'](),
+              createPatient: (patient: any) => mockIpcHandlers['db:patients:create'](patient),
+              updatePatient: (id: string, patient: any) => mockIpcHandlers['db:patients:update'](id, patient),
+              deletePatient: (id: string) => mockIpcHandlers['db:patients:delete'](id),
+              searchPatients: (query: string) => mockIpcHandlers['db:patients:search'](query),
+              
+              // Appointments
+              getAllAppointments: () => mockIpcHandlers['db:appointments:getAll'](),
+              createAppointment: (appointment: any) => mockIpcHandlers['db:appointments:create'](appointment),
+              updateAppointment: (id: string, appointment: any) => mockIpcHandlers['db:appointments:update'](id, appointment),
+              deleteAppointment: (id: string) => mockIpcHandlers['db:appointments:delete'](id),
+              searchAppointments: (query: string) => mockIpcHandlers['db:appointments:search'](query),
+              checkAppointmentConflict: (startTime: string, endTime: string, excludeId?: string) => 
+                mockIpcHandlers['db:appointments:checkConflict'](startTime, endTime, excludeId),
+              
+              // Payments
+              getAllPayments: () => mockIpcHandlers['db:payments:getAll'](),
+              getPaymentsByPatient: (patientId: string) => mockIpcHandlers['db:payments:getByPatient'](patientId),
+              createPayment: (payment: any) => mockIpcHandlers['db:payments:create'](payment),
+              updatePayment: (id: string, payment: any) => mockIpcHandlers['db:payments:update'](id, payment),
+              deletePayment: (id: string) => mockIpcHandlers['db:payments:delete'](id),
+              searchPayments: (query: string) => mockIpcHandlers['db:payments:search'](query),
+              
+              // Additional methods that might be needed
+              getClinicSettings: () => mockIpcHandlers['settings:get'](),
+              updateClinicSettings: (settings: any) => mockIpcHandlers['settings:update'](settings)
+            }
+          }
+          
+          // Try to replace the entire electronAPI
+          try {
+            (window as any).electronAPI = newElectronAPI
+            console.log('✅ Replaced electronAPI with mock version')
+          } catch (replaceError) {
+            console.log('⚠️ Direct replacement failed, trying Object.defineProperty')
+            Object.defineProperty(window, 'electronAPI', {
+              value: newElectronAPI,
+              writable: true,
+              configurable: true
+            })
+            console.log('✅ Replaced electronAPI using Object.defineProperty')
+          }
+        } catch (error) {
+          console.error('❌ Failed to replace electronAPI:', error)
+        }
+      }
+    }, 1000)
   }
 }

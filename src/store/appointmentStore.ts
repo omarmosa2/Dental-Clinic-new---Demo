@@ -77,6 +77,18 @@ export const useAppointmentStore = create<AppointmentStore>()(
       loadAppointments: async () => {
         set({ isLoading: true, error: null })
         try {
+          // Check if electronAPI is available and has the required function
+          if (!window.electronAPI?.database?.getAllAppointments) {
+            console.warn('⚠️ electronAPI.database.getAllAppointments not available, using fallback')
+            // Fallback to empty array for now
+            set({
+              appointments: [],
+              filteredAppointments: [],
+              isLoading: false
+            })
+            return
+          }
+          
           const appointments = await window.electronAPI.database.getAllAppointments()
           console.log('🏪 Store: Loaded appointments:', appointments.length)
           if (appointments.length > 0) {
